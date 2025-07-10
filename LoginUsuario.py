@@ -11,9 +11,9 @@ def lambda_handler(event, context):
     print(event)
 
     try:
-        tenant_id = event['tenant_id']
-        username = event['username']
-        password = event['password']
+        tenant_id = event['body']['tenant_id']
+        username = event['body']['username']
+        password = event['body']['password']
         hashed_password = hash_password(password)
 
         # Obtener nombres de tablas desde variables de entorno
