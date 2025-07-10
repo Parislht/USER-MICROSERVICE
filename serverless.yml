@@ -1,42 +1,44 @@
-service: microservicio-usuarios
 org: parislht
+service: microservicio-usuarios
 
 provider:
   name: aws
   runtime: python3.12
-  region: us-east-1
   memorySize: 1024
   timeout: 30
-  stage: ${opt:stage, 'dev'}
   iam:
     role: arn:aws:iam::418047659300:role/LabRole
+  stage: ${opt:stage, 'dev'}
   environment:
     TABLE_NAME_USERS: ${sls:stage}-t_usuarios
     TABLE_NAME_TOKENS: ${sls:stage}-t_tokens_acceso
 
 functions:
   crear-usuario:
-    handler: src/usuarios/crear_usuario.lambda_handler
+    handler: CrearUsuario.lambda_handler
     events:
       - http:
-          path: usuarios/crear
+          path: /usuarios/crear
           method: post
           cors: true
+          integration: lambda
 
   login-usuario:
-    handler: src/usuarios/login_usuario.lambda_handler
+    handler: LoginUsuario.lambda_handler
     events:
       - http:
-          path: usuarios/login
+          path: /usuarios/login
           method: post
           cors: true
+          integration: lambda
 
   validarTokenAcceso:
-    handler: src/usuarios/validar_token_acceso.lambda_handler
+    handler: ValidarTokenAcceso.lambda_handler
+    # no necesita endpoint HTTP, solo es invocada internamente por otras Lambdas
 
 resources:
   Resources:
-    UsuariosTable:
+    TablaUsuarios:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_NAME_USERS}
@@ -52,7 +54,7 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
 
-    TokensTable:
+    TablaTokens:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_NAME_TOKENS}
@@ -66,4 +68,4 @@ resources:
             KeyType: HASH
           - AttributeName: token
             KeyType: RANGE
-        BillingMode: "PAY_PER_REQUEST"
+        BillingMode: PAY_PER_REQUEST
