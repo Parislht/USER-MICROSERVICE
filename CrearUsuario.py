@@ -10,9 +10,9 @@ def lambda_handler(event, context):
 
     try:
         # Extraer campos desde el body
-        username = event['username']
-        password = event['password']
-        tenant_id = event['tenant_id']
+        username = event['body']['username']
+        password = event['body']['password']
+        tenant_id = event['body']['tenant_id']
 
         # Obtener nombre de la tabla desde variable de entorno
         nombre_tabla = os.environ['TABLE_NAME_USERS']
